@@ -1,6 +1,7 @@
 defmodule ExBitmex.Rest.HTTPClientTest do
   use ExUnit.Case, async: false
   use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
+  import Mock
   doctest ExBitmex.Rest.HTTPClient
 
   setup_all do
@@ -24,6 +25,13 @@ defmodule ExBitmex.Rest.HTTPClientTest do
                  remaining: 299,
                  reset: 1_543_383_854
                }
+      end
+    end
+
+    test "returns an error tuple with no rate limits when the request times out" do
+      with_mock HTTPoison, request: fn _url -> {:error, %HTTPoison.Error{reason: :timeout}} end do
+        assert ExBitmex.Rest.HTTPClient.auth_request(:get, "/stats", @credentials, %{}) ==
+                 {:error, :timeout, nil}
       end
     end
 
@@ -57,13 +65,6 @@ defmodule ExBitmex.Rest.HTTPClientTest do
       end
     end
 
-    test "returns an error tuple with no rate limits when the request times out" do
-      use_cassette "rest/http_client/auth_request_error_timeout" do
-        assert {:error, :timeout, nil} =
-                 ExBitmex.Rest.HTTPClient.auth_request(:get, "/stats", @credentials, %{})
-      end
-    end
-
     test "returns an error tuple when the resource is not found" do
       use_cassette "rest/http_client/auth_request_not_found" do
         assert {:error, :not_found, _} =
@@ -73,6 +74,30 @@ defmodule ExBitmex.Rest.HTTPClientTest do
                    @credentials,
                    %{orderID: "a9b0996e-72bf-1db1-0630-483375da71ec"}
                  )
+      end
+    end
+
+    test "returns an error tuple when overloaded" do
+      use_cassette "rest/http_client/auth_request_overloaded" do
+        assert {:error, :overloaded, _} =
+                 ExBitmex.Rest.HTTPClient.auth_request(:get, "/stats", @credentials, %{})
+      end
+    end
+
+    test "returns an error tuple when the nonce is not increasing" do
+      use_cassette "rest/http_client/auth_request_nonce_not_increasing" do
+        assert {:error, {:nonce_not_increasing, msg}, _} =
+                 ExBitmex.Rest.HTTPClient.auth_request(:get, "/stats", @credentials, %{})
+
+        assert msg ==
+                 "Nonce is not increasing. This nonce: 62279790258940, last nonce: 62279790258995"
+      end
+    end
+
+    test "returns an error tuple when the request response is a bad gateway" do
+      use_cassette "rest/http_client/auth_request_bad_gateway" do
+        assert {:error, :bad_gateway, _} =
+                 ExBitmex.Rest.HTTPClient.auth_request(:get, "/stats", @credentials, %{})
       end
     end
   end

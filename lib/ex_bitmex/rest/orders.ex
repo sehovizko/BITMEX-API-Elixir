@@ -5,9 +5,10 @@ defmodule ExBitmex.Rest.Orders do
   @type order :: ExBitmex.Order.t()
   @type rate_limit :: ExBitmex.RateLimit.t()
   @type auth_error_reason :: Rest.HTTPClient.auth_error_reason()
-  @type create_error_reason ::
-          :timeout | auth_error_reason | {:insufficient_balance, msg :: String.t()}
   @type params :: map
+  @type insufficient_balance_error_reason :: {:insufficient_balance, error_msg :: String.t()}
+  @type create_error_reason :: auth_error_reason | insufficient_balance_error_reason
+  @type amend_error_reason :: auth_error_reason | insufficient_balance_error_reason
 
   @spec create(credentials, params) ::
           {:ok, order, rate_limit} | {:error, create_error_reason, rate_limit | nil}
@@ -18,7 +19,7 @@ defmodule ExBitmex.Rest.Orders do
   end
 
   @spec amend(credentials, params) ::
-          {:ok, order, rate_limit} | {:error, auth_error_reason, rate_limit | nil}
+          {:ok, order, rate_limit} | {:error, amend_error_reason, rate_limit | nil}
   def amend(%ExBitmex.Credentials{} = credentials, params) when is_map(params) do
     "/order"
     |> Rest.HTTPClient.auth_put(credentials, params)
