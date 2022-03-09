@@ -11,8 +11,10 @@ defmodule ExBitmex.Rest.HTTPClient do
   @type nonce_not_increasing :: {:nonce_not_increasing, message}
   @type auth_error_reason ::
           :timeout
+          | :connect_timeout
           | :not_found
           | bad_request
+          | :rate_limited
           | :overloaded
           | :bad_gateway
           | service_unavailable
@@ -234,6 +236,9 @@ defmodule ExBitmex.Rest.HTTPClient do
   defp parse_response({:ok, %HTTPoison.Response{status_code: 404}, rate_limit}),
     do: {:error, :not_found, rate_limit}
 
+  defp parse_response({:ok, %HTTPoison.Response{status_code: 429}, rate_limit}),
+    do: {:error, :rate_limited, rate_limit}
+
   defp parse_response({:ok, %HTTPoison.Response{status_code: 502}, rate_limit}),
     do: {:error, :bad_gateway, rate_limit}
 
@@ -260,4 +265,7 @@ defmodule ExBitmex.Rest.HTTPClient do
 
   defp parse_response({:error, %HTTPoison.Error{reason: :timeout}, nil}),
     do: {:error, :timeout, nil}
+
+  defp parse_response({:error, %HTTPoison.Error{reason: :connect_timeout}, nil}),
+    do: {:error, :connect_timeout, nil}
 end
