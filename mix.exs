@@ -4,7 +4,7 @@ defmodule ExBitmex.Mixfile do
   def project do
     [
       app: :ex_bitmex,
-      version: "0.2.0",
+      version: "0.4.0",
       elixir: "~> 1.7",
       package: package(),
       start_permanent: Mix.env() == :prod,
@@ -33,7 +33,7 @@ defmodule ExBitmex.Mixfile do
       {:mapail, "~> 1.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false},
-      {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
       {:mock, "~> 0.3", only: :test},
       {:exvcr, "~> 0.10", only: [:dev, :test]},
       {:ex_unit_notifier, "~> 0.1", only: :test},
