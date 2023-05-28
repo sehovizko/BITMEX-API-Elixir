@@ -28,7 +28,7 @@ defmodule ExBitmex.Mixfile do
 
   defp deps do
     [
-      {:httpoison, "~> 1.0"},
+      {:httpoison, "~> 2.0"},
       {:jason, "~> 1.1"},
       {:mapail, "~> 1.0"},
       {:websockex, "~> 0.4"},
