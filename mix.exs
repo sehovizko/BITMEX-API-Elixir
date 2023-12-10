@@ -36,7 +36,7 @@ defmodule ExBitmex.Mixfile do
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
       {:mock, "~> 0.3", only: :test},
-      {:exvcr, "~> 0.10", only: [:dev, :test]},
+      {:exvcr, "~> 0.15", only: [:dev, :test]},
       {:ex_unit_notifier, "~> 1.0", only: :test},
       {:excoveralls, "~> 0.1", only: :test}
     ]
